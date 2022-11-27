@@ -45,59 +45,6 @@ void writeToFile(char* text, char* file)
 
 }
 
-char * getConfigFile(HINTERNET hConnect)
-{
-    HINTERNET handleRequest;
-    const char * refs[] = {"text/*", NULL};
-    handleRequest = HttpOpenRequest(
-        hConnect,
-        "GET",
-        "/assignhomework/310910401RSL201222",
-        "HTTP/1.1",
-        NULL,
-        refs,
-        0,
-        0
-    );
-
-    if (handleRequest == NULL)
-    {
-        cout << "\nError at handleRequest: " << GetLastError();
-    }
-
-    BOOL sendRequest;
-    sendRequest = HttpSendRequest(
-        handleRequest,
-        NULL,
-        0,
-        NULL,
-        0
-    );
-
-    if (sendRequest == FALSE)
-    {
-        cout << "\nError at sendRequest: " << GetLastError();
-    }
-
-    BOOL handleRead;
-    const DWORD size = 1024;
-    DWORD sizeOfRead = 0;
-    CHAR buffer[size];
-    ZeroMemory(buffer, size);
-    handleRead = InternetReadFile(
-        handleRequest,
-        buffer,
-        size,
-        &sizeOfRead
-    );
-
-    if (handleRead == FALSE)
-    {
-        cout << "\nError at ReadFile: " << GetLastError();
-    }
-    else return (char*)buffer;
-}
-
 DWORD getFileSize(const char* filename)
 {
     char filepath[300];
@@ -119,7 +66,7 @@ DWORD getFileSize(const char* filename)
 
     if (hFile == INVALID_HANDLE_VALUE)
     {
-        printf("Could not open file (error %d\n)", GetLastError());
+        cout << "\nCould not open file: " << GetLastError();
         return 0;
     }
 
@@ -133,16 +80,16 @@ DWORD getFileSize(const char* filename)
 long long int scanDirectory()
 {
     WIN32_FIND_DATA fileData;
-    cout << "Accessing directory...\n";
+    //cout << "Accessing directory...\n";
     HANDLE hDir = FindFirstFile("C:\\Facultate\\CSSO\\Week4\\Downloads\\*", &fileData);
     if (hDir == INVALID_HANDLE_VALUE) {
         cout << "\nFindFirstFile error: " << GetLastError() << '\n';
     }
-    else cout << "\nFound directory\n";
+    //else cout << "\nFound directory\n";
     long long int totalSize = 0;
 
     do {
-        cout << '\n' << fileData.cFileName << '\n';
+       //getting the size of the crt file in the given directory
         totalSize += getFileSize(fileData.cFileName);
     } while (FindNextFile(hDir, &fileData) != 0);
     FindClose(hDir);
@@ -153,7 +100,7 @@ HINTERNET getOpenRequestHandle(HINTERNET hConnect, const char* request, const ch
 {
     HINTERNET handleRequest;
     const char* refs[] = { type, NULL };
-    cout << "\nRequest: " << request << " " << "Addreess: " << address << '\n';
+    cout << "\nRequest: " << request << " " << "Address: " << address << '\n';
     handleRequest = HttpOpenRequest(
         hConnect,
         request,
@@ -176,7 +123,6 @@ void sendRequest(HINTERNET hRequest, char* toSend)
 {
     BOOL sendRequest;
     DWORD dwBytesToWrite;
-    cout << "\nups\n";
     if (toSend != NULL) {
         dwBytesToWrite = (DWORD)strlen(toSend);
         cout << "\nSending: " << toSend << endl;
@@ -232,19 +178,15 @@ void scanConfig(HINTERNET hConnect)
     HINTERNET openRequestHandle;
     while (getline(file, configCommand))
     {
-        //cout << configCommand << '\n';
         char cpy[1024];
         strcpy(cpy, configCommand.c_str());
         char* ptr;  
  
         ptr = strtok(cpy, ":");
         char* request = ptr;
-        cout << request << endl; 
         ptr = strtok(NULL, " , ");
         char* address = ptr;
         char* subaddress = address + 27;
-        cout << subaddress << endl;
-        cout << "\n------------------------------------------\n";
 
         
         char buffer[1024];
@@ -261,9 +203,9 @@ void scanConfig(HINTERNET hConnect)
             strcat(cpy, ".txt");
             char content[1024];
             strcpy(content, readFromRequest(openRequestHandle));
-            //se scrie in fisierul <path>
+            //writing to <path> file
             writeToFile(content, cpy);
-            //se retine valoarea ultimului GET
+            //remembering the last value of a GET request
             strcpy(buffer, content);
         }
         else if (!strcmp(request, "POST"))
@@ -271,18 +213,30 @@ void scanConfig(HINTERNET hConnect)
             nPost++;
             openRequestHandle = getOpenRequestHandle(hConnect, request, subaddress, "application/x-www-form-urlencoded");
             char toSend[1024];
-            strcpy(toSend, "id=310910401RSL201222&value=");
+            strcpy(toSend, "id=310910401RSL201222 & value=");
             strcat(toSend, buffer);
             sendRequest(openRequestHandle, toSend);
         }
     }
+
+    //3
     char log[300];
     sprintf(log, "\nid = 310910401RSL201222 & total = %d & get = %d & post = %d & size = %lld\n",
         nGet + nPost, nGet, nPost, scanDirectory());
     openRequestHandle = getOpenRequestHandle(hConnect, "POST", "/endhomework", "application/x-www-form-urlencoded");
     sendRequest(openRequestHandle, log);
-    cout << "\n\nFinal: " << log;
+    //cout << "\n\nFinal: " << log;
     
+}
+
+char* getConfigFile(HINTERNET hConnect)
+{
+
+    HINTERNET reqHandle;
+    reqHandle = getOpenRequestHandle(hConnect, "GET", "/assignhomework/310910401RSL201222", "text/*");
+
+    sendRequest(reqHandle, NULL);
+    return readFromRequest(reqHandle);
 }
 
 int main()

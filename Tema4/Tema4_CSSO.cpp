@@ -119,20 +119,25 @@ HINTERNET getOpenRequestHandle(HINTERNET hConnect, const char* request, const ch
     return handleRequest;
 }
 
-void sendRequest(HINTERNET hRequest, char* toSend)
+void sendRequest(HINTERNET hRequest, char* toSend, char* headers)
 {
     BOOL sendRequest;
     DWORD dwBytesToWrite;
+    DWORD dwheaders;
     if (toSend != NULL) {
         dwBytesToWrite = (DWORD)strlen(toSend);
+        dwheaders = (DWORD)strlen(headers);
         cout << "\nSending: " << toSend << endl;
     }
-    else dwBytesToWrite = 0;
+    else {
+        dwBytesToWrite = 0;
+        dwheaders = 0;
+    }
     
     sendRequest = HttpSendRequest(
         hRequest,
-        NULL,
-        0,
+        headers,
+        dwheaders,
         toSend,
         dwBytesToWrite
     );
@@ -194,7 +199,7 @@ void scanConfig(HINTERNET hConnect)
         {
             nGet++;
             openRequestHandle = getOpenRequestHandle(hConnect, request, subaddress, "text/*");
-            sendRequest(openRequestHandle, NULL);
+            sendRequest(openRequestHandle, NULL, NULL);
             char* filename = (char*)"C:\\Facultate\\CSSO\\Week4\\Downloads\\";
             char* file = subaddress + 12;
             char cpy[1024];
@@ -213,18 +218,19 @@ void scanConfig(HINTERNET hConnect)
             nPost++;
             openRequestHandle = getOpenRequestHandle(hConnect, request, subaddress, "application/x-www-form-urlencoded");
             char toSend[1024];
-            strcpy(toSend, "id=310910401RSL201222 & value=");
+            strcpy(toSend, "id=310910401RSL201222&value=");
             strcat(toSend, buffer);
-            sendRequest(openRequestHandle, toSend);
+            sendRequest(openRequestHandle, toSend, (char*)"Content-Type:application/x-www-form-urlencoded");
+            cout << readFromRequest(openRequestHandle);
         }
     }
 
     //3
     char log[300];
-    sprintf(log, "\nid = 310910401RSL201222 & total = %d & get = %d & post = %d & size = %lld\n",
+    sprintf(log, "id=310910401RSL201222&total=%d&get=%d&post=%d&size=%lld",
         nGet + nPost, nGet, nPost, scanDirectory());
     openRequestHandle = getOpenRequestHandle(hConnect, "POST", "/endhomework", "application/x-www-form-urlencoded");
-    sendRequest(openRequestHandle, log);
+    sendRequest(openRequestHandle, log, (char*)"Content-Type:application/x-www-form-urlencoded");
     //cout << "\n\nFinal: " << log;
     
 }
@@ -235,7 +241,7 @@ char* getConfigFile(HINTERNET hConnect)
     HINTERNET reqHandle;
     reqHandle = getOpenRequestHandle(hConnect, "GET", "/assignhomework/310910401RSL201222", "text/*");
 
-    sendRequest(reqHandle, NULL);
+    sendRequest(reqHandle, NULL, NULL);
     return readFromRequest(reqHandle);
 }
 
@@ -279,5 +285,7 @@ int main()
 
     //2
     scanConfig(internetConnect);
+    InternetCloseHandle(internetConnect);
+    InternetCloseHandle(internetHandle);
 
 }

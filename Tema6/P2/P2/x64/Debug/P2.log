@@ -1,0 +1,12 @@
+﻿  P2.cpp
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(91,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(129,19): warning C4244: 'initializing': conversion from 'double' to 'long', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(142,13): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(170,23): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(173,19): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(176,19): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(191,24): warning C4244: 'initializing': conversion from 'double' to '__int64', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(198,17): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(215,46): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\Users\Laura\Desktop\Tema6_CSSO\P2\P2\P2.cpp(222,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  P2.vcxproj -> C:\Users\Laura\Desktop\Tema6_CSSO\P2\x64\Debug\P2.exe
